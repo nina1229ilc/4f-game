@@ -466,114 +466,50 @@ function polishText(text) {
         polished = polished.replace(new RegExp(typo, 'g'), correct);
     }
     
-    // 2. 移除贅字和贅詞
-    const fillerWords = [
-        // 重複詞
-        /(.)\1{2,}/g,  // 移除重複三次以上的字
-        // 常見贅字
-        /其實我覺得/g, '我覺得',
-        /然後我覺得/g, '我覺得',
-        /就是說/g, '就是',
-        /然後呢/g, '然後',
-        /所以說/g, '所以',
-        /的話(?=[，。！？])/g, '',
-        /(?<=[，。！？])的話/g, '',
-        /大概(?=[，。！？])/g, '',
-        /(?<=[，。！？])大概/g, '',
-        /好像(?=[，。！？])/g, '',
-        /(?<=[，。！？])好像/g, '',
-        /可能(?=[，。！？])/g, '',
-        /(?<=[，。！？])可能/g, '',
-        /應該(?=[，。！？])/g, '',
-        /(?<=[，。！？])應該/g, '',
-        /不過(?=[，。！？])/g, '',
-        /(?<=[，。！？])不過/g, '',
-        /但是(?=[，。！？])/g, '',
-        /(?<=[，。！？])但是/g, '',
-        /而且(?=[，。！？])/g, '',
-        /(?<=[，。！？])而且/g, '',
-        /所以(?=[，。！？])/g, '',
-        /(?<=[，。！？])所以/g, '',
-        /因為(?=[，。！？])/g, '',
-        /(?<=[，。！？])因為/g, '',
-        /如果(?=[，。！？])/g, '',
-        /(?<=[，。！？])如果/g, '',
-        /那麼(?=[，。！？])/g, '',
-        /(?<=[，。！？])那麼/g, '',
-        /而且(?=[，。！？])/g, '',
-        /(?<=[，。！？])而且/g, '',
-        /然後(?=[，。！？])/g, '',
-        /(?<=[，。！？])然後/g, '',
-        /可是(?=[，。！？])/g, '',
-        /(?<=[，。！？])可是/g, '',
-        /雖然(?=[，。！？])/g, '',
-        /(?<=[，。！？])雖然/g, '',
-        /或者(?=[，。！？])/g, '',
-        /(?<=[，。！？])或者/g, '',
-        /還有(?=[，。！？])/g, '',
-        /(?<=[，。！？])還有/g, '',
-        /另外(?=[，。！？])/g, '',
-        /(?<=[，。！？])另外/g, '',
-        /並且(?=[，。！？])/g, '',
-        /(?<=[，。！？])並且/g, '',
-        /至於(?=[，。！？])/g, '',
-        /(?<=[，。！？])至於/g, '',
-        /順便一提/g, '',
-        /順便說一下/g, '',
-        /總之來說/g, '總之',
-        /整體來說/g, '整體',
-        /簡單來說/g, '簡單',
-        /基本上來說/g, '基本上',
-        /嚴格來說/g, '嚴格',
-        /廣泛來說/g, '廣泛',
-        /一般來說/g, '一般',
-        /特別來說/g, '特別',
-        // 移除不相關的贅字
-        /嗯嗯/g, '',
-        /對對對/g, '對',
-        /是是是/g, '是',
-        /好好好/g, '好',
-        /那個那個/g, '那個',
-        /這個這個/g, '這個',
-        /就是就是/g, '就是',
-        /然後然後/g, '然後',
-        /所以所以/g, '所以',
-        /因為因為/g, '因為',
-        /但是但是/g, '但是',
-        /可是可是/g, '可是',
-        /不過不過/g, '不過',
-        /而且而且/g, '而且',
-        /或者或者/g, '或者',
-        /還有還有/g, '還有',
-        /另外另外/g, '另外',
-        /並且並且/g, '並且',
-        /至於至於/g, '至於',
-        /如果如果/g, '如果',
-        /那麼那麼/g, '那麼',
-        /所以所以/g, '所以',
-        /因為因為/g, '因為',
-        /但是但是/g, '但是',
-        /可是可是/g, '可是',
-        /不過不過/g, '不過',
-        /而且而且/g, '而且',
-        /或者或者/g, '或者',
-        /還有還有/g, '還有',
-        /另外另外/g, '另外',
-        /並且並且/g, '並且',
-        /至於至於/g, '至於'
-    ];
+    // 2. 移除贅字和贅詞（安全版本，避免亂碼）
+    // 簡化版：只處理明確的贅字
+    polished = polished.replace(/其實我覺得/g, '我覺得');
+    polished = polished.replace(/然後我覺得/g, '我覺得');
+    polished = polished.replace(/就是說/g, '就是');
+    polished = polished.replace(/然後呢/g, '然後');
+    polished = polished.replace(/所以說/g, '所以');
+    polished = polished.replace(/順便一提/g, '');
+    polished = polished.replace(/順便說一下/g, '');
+    polished = polished.replace(/總之來說/g, '總之');
+    polished = polished.replace(/整體來說/g, '整體');
+    polished = polished.replace(/簡單來說/g, '簡單');
+    polished = polished.replace(/基本上來說/g, '基本上');
+    polished = polished.replace(/嚴格來說/g, '嚴格');
+    polished = polished.replace(/廣泛來說/g, '廣泛');
+    polished = polished.replace(/一般來說/g, '一般');
+    polished = polished.replace(/特別來說/g, '特別');
     
-    // 執行贅字移除（使用替換陣列）
-    for (let i = 0; i < fillerWords.length; i += 2) {
-        const pattern = fillerWords[i];
-        const replacement = fillerWords[i + 1];
-        polished = polished.replace(pattern, replacement);
-    }
+    // 3. 移除重複字（安全版本）
+    // 移除連續重複的語助詞
+    polished = polished.replace(/嗯嗯/g, '');
+    polished = polished.replace(/對對對/g, '對');
+    polished = polished.replace(/是是是/g, '是');
+    polished = polished.replace(/好好好/g, '好');
+    polished = polished.replace(/那個那個/g, '那個');
+    polished = polished.replace(/這個這個/g, '這個');
+    polished = polished.replace(/就是就是/g, '就是');
+    polished = polished.replace(/然後然後/g, '然後');
+    polished = polished.replace(/所以所以/g, '所以');
+    polished = polished.replace(/因為因為/g, '因為');
+    polished = polished.replace(/但是但是/g, '但是');
+    polished = polished.replace(/可是可是/g, '可是');
+    polished = polished.replace(/不過不過/g, '不過');
+    polished = polished.replace(/而且而且/g, '而且');
+    polished = polished.replace(/或者或者/g, '或者');
+    polished = polished.replace(/還有還有/g, '還有');
+    polished = polished.replace(/另外另外/g, '另外');
+    polished = polished.replace(/並且並且/g, '並且');
+    polished = polished.replace(/至於至於/g, '至於');
     
-    // 3. 移除多餘的空白
+    // 4. 移除多餘的空白
     polished = polished.replace(/\s+/g, ' ').trim();
     
-    // 4. 修正重複標點符號
+    // 5. 修正重複標點符號
     polished = polished.replace(/。，/g, '。');
     polished = polished.replace(/。、/g, '。');
     polished = polished.replace(/，。/g, '。');
@@ -581,9 +517,6 @@ function polishText(text) {
     polished = polished.replace(/。。+/g, '。');
     polished = polished.replace(/，，+/g, '，');
     polished = polished.replace(/、、+/g, '、');
-    
-    // 5. 確保句首大寫（中文不需要，但處理英文）
-    polished = polished.replace(/([。！？]\s*)([a-z])/g, (match, sep, letter) => sep + letter.toUpperCase());
     
     // 6. 移除句首的空白
     polished = polished.replace(/^[\s]+/, '');
