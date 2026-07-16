@@ -528,18 +528,39 @@ function polishText(text) {
         /廣泛來說/g, '廣泛',
         /一般來說/g, '一般',
         /特別來說/g, '特別',
-        /重要來說/g, '重要',
-        /有趣來說/g, '有趣',
-        /開心來說/g, '開心',
-        /難過來說/g, '難過',
-        /驚訝來說/g, '驚訝',
-        /感動來說/g, '感動',
-        /有趣來說/g, '有趣',
-        /重要來說/g, '重要',
-        /難過來說/g, '難過',
-        /驚訝來說/g, '驚訝',
-        /感動來說/g, '感動',
-        /開心來說/g, '開心'
+        // 移除不相關的贅字
+        /嗯嗯/g, '',
+        /對對對/g, '對',
+        /是是是/g, '是',
+        /好好好/g, '好',
+        /那個那個/g, '那個',
+        /這個這個/g, '這個',
+        /就是就是/g, '就是',
+        /然後然後/g, '然後',
+        /所以所以/g, '所以',
+        /因為因為/g, '因為',
+        /但是但是/g, '但是',
+        /可是可是/g, '可是',
+        /不過不過/g, '不過',
+        /而且而且/g, '而且',
+        /或者或者/g, '或者',
+        /還有還有/g, '還有',
+        /另外另外/g, '另外',
+        /並且並且/g, '並且',
+        /至於至於/g, '至於',
+        /如果如果/g, '如果',
+        /那麼那麼/g, '那麼',
+        /所以所以/g, '所以',
+        /因為因為/g, '因為',
+        /但是但是/g, '但是',
+        /可是可是/g, '可是',
+        /不過不過/g, '不過',
+        /而且而且/g, '而且',
+        /或者或者/g, '或者',
+        /還有還有/g, '還有',
+        /另外另外/g, '另外',
+        /並且並且/g, '並且',
+        /至於至於/g, '至於'
     ];
     
     // 執行贅字移除（使用替換陣列）
@@ -577,30 +598,63 @@ function optimizeSentenceFlow(sentences) {
     // 為每個句子添加適當的連接詞
     const optimizedSentences = [];
     
+    // 第一關和第二關之間的連接詞
+    const factToFeelingConnectors = [
+        '學習了這些之後，',
+        '了解了這些內容後，',
+        '學到這些知識後，',
+        '知道這些之後，',
+        '學習這些知識後，'
+    ];
+    
+    // 第二關和第三關之間的連接詞
+    const feelingToFindingConnectors = [
+        '在這個過程中，',
+        '透過這次學習，',
+        '在學習的同時，',
+        '在這個體驗中，',
+        '在學習的過程中，'
+    ];
+    
+    // 第三關和第四關之間的連接詞
+    const findingToFutureConnectors = [
+        '基於這些發現，',
+        '有了這些體悟，',
+        '從這些發現中，',
+        '因為這些學習，',
+        '從這次經驗中，'
+    ];
+    
     sentences.forEach((sentence, index) => {
         let optimized = sentence;
         
         // 根據關卡添加適當的開頭連接詞
         if (index === 1) {
-            // 第二關：感受
+            // 第二關：感受 - 添加從事實到感受的連接詞
             const feelingConnectors = ['我覺得', '對我來說', '這讓我感到', '我的感受是', '對此我覺得'];
             const hasFeelingConnector = feelingConnectors.some(c => optimized.startsWith(c));
             if (!hasFeelingConnector) {
-                // 不強制添加，保持自然
+                // 隨機選擇一個連接詞
+                const connector = factToFeelingConnectors[Math.floor(Math.random() * factToFeelingConnectors.length)];
+                optimized = connector + optimized;
             }
         } else if (index === 2) {
-            // 第三關：發現
+            // 第三關：發現 - 添加從感受到發現的連接詞
             const findingConnectors = ['我發現', '原來', '我了解到', '透過這次學習', '這讓我想到'];
             const hasFindingConnector = findingConnectors.some(c => optimized.startsWith(c));
             if (!hasFindingConnector) {
-                // 不強制添加，保持自然
+                // 隨機選擇一個連接詞
+                const connector = feelingToFindingConnectors[Math.floor(Math.random() * feelingToFindingConnectors.length)];
+                optimized = connector + optimized;
             }
         } else if (index === 3) {
-            // 第四關：未來
+            // 第四關：未來 - 添加從發現到未來的連接詞
             const futureConnectors = ['下次', '以後', '未來', '接下來', '從今以後'];
             const hasFutureConnector = futureConnectors.some(c => optimized.startsWith(c));
             if (!hasFutureConnector) {
-                // 不強制添加，保持自然
+                // 隨機選擇一個連接詞
+                const connector = findingToFutureConnectors[Math.floor(Math.random() * findingToFutureConnectors.length)];
+                optimized = connector + optimized;
             }
         }
         
