@@ -6,33 +6,130 @@ let sentences = [];
 let recognition = null;
 let isRecording = false;
 
-// ========== 情緒選項資料庫（依年級區分） ==========
-const feelingsDB = {
-    // 3年級用詞
-    grade3: {
-        positive: ['開心 😊', '好玩 😄', '有趣 😆', '喜歡 ❤️'],
-        challenge: ['有點難 😅', '想再試一次 🔄', '需要幫忙 🙋'],
-        neutral: ['還好 🙂', '专心 🎯']
+// ========== 阿德勒心理學情緒資料庫 ==========
+const adlerFeelingsDB = {
+    // 學習成功類型
+    achievement: {
+        label: '成就感',
+        grade3: ['開心 😊', '好厲害 🌟', '有成就感 🏆'],
+        grade4: ['開心 😊', '有成就感 🏆', '自豪 😎'],
+        grade5: ['開心 😊', '有成就感 🏆', '滿足 😌', '自豪 😎'],
+        grade6: ['開心 😊', '有成就感 🏆', '充實 😌', '自豪 😎', '自信 💪']
     },
-    // 4年級用詞
-    grade4: {
-        positive: ['開心 😊', '興奮 🎉', '有趣 😄', '感動 💖'],
-        challenge: ['有挑戰性 💪', '需要思考 🤔', '想再試一次 🔄'],
-        neutral: ['平静 🍃', '专注 🎯', '好奇 🧐']
+    // 發現新知類型
+    discovery: {
+        label: '驚奇感',
+        grade3: ['好奇 🧐', '有趣 😆', '好神奇 ✨'],
+        grade4: ['好奇 🧐', '驚奇 ✨', '有趣 😄'],
+        grade5: ['好奇 🧐', '驚奇 ✨', '有興趣 💡', '想探索 🔍'],
+        grade6: ['好奇 🧐', '驚奇 ✨', '有興趣 💡', '期待 🌟', '想深入了解 🔍']
     },
-    // 5年級用詞
-    grade5: {
-        positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '滿足 😌'],
-        challenge: ['有挑戰性 💪', '需要思考 🤔', '想克服困難 💪'],
-        neutral: ['平静 🍃', '專注 🎯', '好奇 🧐']
+    // 克服困難類型
+    challenge: {
+        label: '努力感',
+        grade3: ['想再試一次 🔄', '不放棄 💪', '勇敢 😊'],
+        grade4: ['有挑戰性 💪', '想再試一次 🔄', '不放棄 💪'],
+        grade5: ['有挑戰性 💪', '想克服困難 💪', '不放棄 💪', '堅強 💪'],
+        grade6: ['有挑戰性 💪', '想持續努力 💪', '不放棄 💪', '堅強 💪', '成長中 🌱']
     },
-    // 6年級用詞
-    grade6: {
-        positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '充實 😌', '有成就感 🏆'],
-        challenge: ['有挑戰性 💪', '需要深入思考 🤔', '想持續努力 💪'],
-        neutral: ['平静 🍃', '專注 🎯', '好奇 🧐', '期待 🌟']
+    // 合作學習類型
+    cooperation: {
+        label: '歸屬感',
+        grade3: ['一起學 🤝', '開心 😊', '好玩 😄'],
+        grade4: ['一起學 🤝', '團隊合作 💪', '開心 😊'],
+        grade5: ['團隊合作 💪', '歸屬感 🏠', '一起成長 🌱'],
+        grade6: ['團隊合作 💪', '歸屬感 🏠', '互相學習 📚', '一起成長 🌱']
+    },
+    // 幫助他人類型
+    helpful: {
+        label: '貢獻感',
+        grade3: ['開心 😊', '好棒 ❤️', '幫助別人好快樂 😊'],
+        grade4: ['開心 😊', '有貢獻 ❤️', '幫助別人好快樂 😊'],
+        grade5: ['有貢獻 ❤️', '幫助別人好快樂 😊', '有意義 💖'],
+        grade6: ['有貢獻 ❤️', '幫助別人好快樂 😊', '有意義 💖', '充實 😌']
+    },
+    // 正向態度類型
+    positive: {
+        label: '正向態度',
+        grade3: ['開心 😊', '喜歡 ❤️', '好玩 😄'],
+        grade4: ['開心 😊', '喜歡 ❤️', '有趣 😄', '感動 💖'],
+        grade5: ['開心 😊', '喜歡 ❤️', '驚奇 ✨', '滿足 😌'],
+        grade6: ['開心 😊', '喜歡 ❤️', '驚奇 ✨', '充實 😌', '有成就感 🏆']
+    },
+    // 一般情緒
+    general: {
+        label: '一般感受',
+        grade3: ['還好 🙂', '专心 🎯', '平靜 🍃'],
+        grade4: ['還好 🙂', '专注 🎯', '平静 🍃', '好奇 🧐'],
+        grade5: ['還好 🙂', '專注 🎯', '平静 🍃', '好奇 🧐'],
+        grade6: ['還好 🙂', '專注 🎯', '平静 🍃', '好奇 🧐', '期待 🌟']
     }
 };
+
+// ========== 事實內容分析 ==========
+function analyzeFactContent(factText) {
+    const text = factText.toLowerCase();
+    const result = {
+        type: 'general',
+        keywords: [],
+        subjects: []
+    };
+    
+    // 分析學科類別
+    if (text.includes('科學') || text.includes('實驗') || text.includes('自然') || text.includes('生物') || text.includes('物理') || text.includes('化學')) {
+        result.subjects.push('science');
+    }
+    if (text.includes('國語') || text.includes('讀') || text.includes('寫') || text.includes('作文') || text.includes('閱讀')) {
+        result.subjects.push('language');
+    }
+    if (text.includes('數學') || text.includes('計算') || text.includes('數字') || text.includes('幾何')) {
+        result.subjects.push('math');
+    }
+    if (text.includes('社會') || text.includes('歷史') || text.includes('地理') || text.includes('公民')) {
+        result.subjects.push('social');
+    }
+    if (text.includes('藝') || text.includes('音樂') || text.includes('美術') || text.includes('體育')) {
+        result.subjects.push('art');
+    }
+    
+    // 分析學習情境類型
+    if (text.includes('成功') || text.includes('學會') || text.includes('完成') || text.includes('做到') || text.includes('得到') || text.includes('贏得')) {
+        result.type = 'achievement';
+        result.keywords.push('成就');
+    } else if (text.includes('發現') || text.includes('原來') || text.includes('知道') || text.includes('了解') || text.includes('新')) {
+        result.type = 'discovery';
+        result.keywords.push('發現');
+    } else if (text.includes('難') || text.includes('挑戰') || text.includes('困難') || text.includes('不會') || text.includes('失敗')) {
+        result.type = 'challenge';
+        result.keywords.push('挑戰');
+    } else if (text.includes('一起') || text.includes('同學') || text.includes('分組') || text.includes('合作') || text.includes('團隊')) {
+        result.type = 'cooperation';
+        result.keywords.push('合作');
+    } else if (text.includes('幫') || text.includes('分享') || text.includes('教') || text.includes('服務')) {
+        result.type = 'helpful';
+        result.keywords.push('幫助');
+    } else if (text.includes('有趣') || text.includes('好玩') || text.includes('喜歡') || text.includes('開心')) {
+        result.type = 'positive';
+        result.keywords.push('正向');
+    }
+    
+    return result;
+}
+
+// ========== 依據阿德勒心理學的情緒建議 ==========
+function getAdlerFeelingSuggestions(factText) {
+    const analysis = analyzeFactContent(factText);
+    const suggestions = [];
+    
+    // 取得對應年級的選項
+    const gradeKey = `grade${studentGrade}`;
+    const feelings = adlerFeelingsDB[analysis.type]?.[gradeKey] || adlerFeelingsDB.general[gradeKey];
+    
+    // 提供 2-3 個選項
+    suggestions.push(...feelings.slice(0, 3));
+    
+    return suggestions;
+}
 
 // ========== 學習發現資料庫（依年級區分） ==========
 const findingsDB = {
@@ -171,21 +268,8 @@ function getGradeDB(grade) {
 
 // ========== 參考答案生成 ==========
 function getFeelingSuggestions(factText) {
-    const suggestions = [];
-    const text = factText.toLowerCase();
-    const gradeDB = getGradeDB(studentGrade);
-    
-    // 根據事實內容推測可能的情緒
-    if (text.includes('有趣') || text.includes('好玩') || text.includes('喜歡')) {
-        suggestions.push(...gradeDB.feelings.positive.slice(0, 2));
-    } else if (text.includes('難') || text.includes('挑戰') || text.includes('不會')) {
-        suggestions.push(...gradeDB.feelings.challenge.slice(0, 2));
-    } else {
-        // 預設提供正向情緒選項
-        suggestions.push(gradeDB.feelings.positive[0], gradeDB.feelings.neutral[1]);
-    }
-    
-    return suggestions;
+    // 使用阿德勒心理學的情緒建議系統
+    return getAdlerFeelingSuggestions(factText);
 }
 
 function getFindingsSuggestions(factText, feelingText) {
