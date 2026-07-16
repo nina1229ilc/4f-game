@@ -651,6 +651,7 @@ function saveEssay() {
         },
         body: JSON.stringify({
             name: studentName,
+            grade: studentGrade,
             sentences: sentences,
             essay: essay
         })

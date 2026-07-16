@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教師管理面板 - 4F 心得闖關遊戲</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 1rem;
+            color: #636e72;
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 20px 30px;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #2d3436;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #636e72;
+            margin-top: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn-export {
+            background: linear-gradient(135deg, #00b894 0%, #00a381 100%);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.5);
+        }
+        
+        .btn-refresh {
+            background: linear-gradient(135deg, #0984e3 0%, #0773c5 100%);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-refresh:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(9, 132, 227, 0.5);
+        }
+        
+        .essays-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .essays-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .essay-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .essay-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .essay-card:hover {
+            border-color: #4ECDC4;
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.3);
+        }
+        
+        .essay-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .essay-student {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3436;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .essay-grade {
+            background: linear-gradient(135deg, #FF6B6B 0%, #ee5a5a 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .essay-time {
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+        
+        .essay-content {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            line-height: 1.8;
+            color: #2d3436;
+        }
+        
+        .essay-sentences {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e0e0e0;
+        }
+        
+        .sentence-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .sentence-label {
+            font-weight: 600;
+            color: #636e72;
+            min-width: 80px;
+        }
+        
+        .sentence-text {
+            color: #2d3436;
+        }
+        
+        .no-essays {
+            text-align: center;
+            padding: 50px;
+            color: #636e72;
+        }
+        
+        .no-essays-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .link-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .link-label {
+            font-size: 0.9rem;
+            color: #636e72;
+            margin-bottom: 10px;
+        }
+        
+        .link-url {
+            background: white;
+            border: 2px solid #4ECDC4;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            color: #2d3436;
+            word-break: break-all;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .link-url:hover {
+            background: #4ECDC4;
+            color: white;
+        }
+        
+        .instructions {
+            background: #fff9e6;
+            border-left: 4px solid #FFE66D;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .instructions-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card {
+                min-width: 120px;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .essay-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">📚 教師管理面板</h1>
+            <p class="dashboard-subtitle">查看學生學習心得，匯出資料到 Google 試算表</p>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-essays">{{ essays|length }}</div>
+                    <div class="stat-label">學生作品數</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-grades">-</div>
+                    <div class="stat-label">涵蓋年級</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-refresh" onclick="refreshEssays()">
+                    🔄 重新整理
+                </button>
+                <button class="btn-export" onclick="exportCSV()">
+                    📊 匯出 CSV（Google 試算表）
+                </button>
+            </div>
+            
+            <div class="link-box">
+                <div class="link-label">📋 學生作答連結（請分享給學生）：</div>
+                <div class="link-url" id="student-link" onclick="copyLink()">
+                    點擊複製連結
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <div class="instructions-title">📖 使用說明：</div>
+                <ol>
+                    <li>將上方連結分享給學生</li>
+                    <li>學生完成四個關卡後，作品會自動出現在下方</li>
+                    <li>點擊「匯出 CSV」將資料匯入 Google 試算表</li>
+                    <li>在 Google 試算表中，選擇 <strong>檔案 → 匯入 → 上傳</strong>，選擇 CSV 檔案</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="essays-container">
+            <h2 class="essays-title">📝 學生作品列表</h2>
+            
+            <div class="essay-list" id="essay-list">
+                {% if essays %}
+                    {% for essay in essays %}
+                    <div class="essay-card">
+                        <div class="essay-card-header">
+                            <div class="essay-student">
+                                <span class="essay-grade">{{ essay.grade }}年級</span>
+                                {{ essay.name }}
+                            </div>
+                            <div class="essay-time">{{ essay.timestamp }}</div>
+                        </div>
+                        <div class="essay-content">
+                            {{ essay.essay }}
+                        </div>
+                        <div class="essay-sentences">
+                            <div class="sentence-row">
+                                <span class="sentence-label">📋 事實：</span>
+                                <span class="sentence-text">{{ essay.sentences[0] if essay.sentences|length > 0 else '-' }}</span>
+                            </div>
+                            <div class="sentence-row">
+                                <span class="sentence-label">💭 感受：</span>
+                                <span class="sentence-text">{{ essay.sentences[1] if essay.sentences|length > 1 else '-' }}</span>
+                            </div>
+                            <div class="sentence-row">
+                                <span class="sentence-label">🔍 發現：</span>
+                                <span class="sentence-text">{{ essay.sentences[2] if essay.sentences|length > 2 else '-' }}</span>
+                            </div>
+                            <div class="sentence-row">
+                                <span class="sentence-label">🚀 未來：</span>
+                                <span class="sentence-text">{{ essay.sentences[3] if essay.sentences|length > 3 else '-' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="no-essays">
+                    <div class="no-essays-icon">📭</div>
+                    <p>還沒有學生提交作品</p>
+                    <p>請等待學生完成四個關卡</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 設定學生連結
+        document.getElementById('student-link').textContent = window.location.origin;
+        
+        function copyLink() {
+            const link = window.location.origin;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('連結已複製到剪貼簿！');
+            }).catch(err => {
+                // 備用方案
+                const textarea = document.createElement('textarea');
+                textarea.value = link;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('連結已複製到剪貼簿！');
+            });
+        }
+        
+        function refreshEssays() {
+            fetch('/api/essays')
+                .then(response => response.json())
+                .then(data => {
+                    location.reload();
+                });
+        }
+        
+        function exportCSV() {
+            window.location.href = '/api/export/csv';
+        }
+        
+        // 計算年級統計
+        function updateStats() {
+            const essays = {{ essays|tojson }};
+            const grades = new Set(essays.map(e => e.grade));
+            document.getElementById('total-grades').textContent = grades.size > 0 ? Array.from(grades).join(', ') : '-';
+        }
+        
+        updateStats();
+    </script>
+</body>
+</html>
