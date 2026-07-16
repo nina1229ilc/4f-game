@@ -488,14 +488,9 @@ function loadStage(index) {
         // 第二關：根據第一關內容顯示情緒選項
         const suggestions = getFeelingSuggestions(sentences[0]);
         showSuggestions(suggestions);
-    } else if (index === 2) {
-        // 第三關：根據前兩關顯示學習發現選項
-        const suggestions = getFindingsSuggestions(sentences[0], sentences[1]);
-        showSuggestions(suggestions);
-    } else if (index === 3) {
-        // 第四關：顯示未來目標選項
-        const suggestions = getFutureSuggestions(sentences[0], sentences[1], sentences[2]);
-        showSuggestions(suggestions);
+    } else {
+        // 其他關卡：不顯示參考答案
+        suggestionsContainer.classList.add('hidden');
     }
     
     // 動畫效果
