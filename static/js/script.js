@@ -709,6 +709,34 @@ const connectors = {
     future: []
 };
 
+// ========== 自動補主詞 ==========
+function addSubject(text, stageId) {
+    const s = text.trim();
+    if (!s) return s;
+    
+    // 已有主詞就跳過
+    if (/^[我她他它們]/.test(s)) return s;
+    
+    switch (stageId) {
+        case 0: // 事實：補「我」
+            return '我' + s;
+        case 1: // 感受：補「心裡感到」或「我覺得」
+            if (/開心|快樂|高興|感動|有趣|好玩|喜歡|滿足|充實|驚奇/.test(s)) {
+                return '心裡感到' + s;
+            }
+            return '我覺得' + s;
+        case 2: // 發現：補「我發現」
+            return '我發現' + s;
+        case 3: // 未來：補「我」或「我要」
+            if (/想|要|會|希望|打算/.test(s)) {
+                return '我' + s;
+            }
+            return '我要' + s;
+        default:
+            return '我' + s;
+    }
+}
+
 // ========== 串接短文 ==========
 function compileEssay() {
     // 確保所有句子都已儲存
@@ -717,9 +745,12 @@ function compileEssay() {
     // 依序處理每一個句子
     const cleaned = [];
     
-    sentences.forEach((sentence) => {
+    sentences.forEach((sentence, index) => {
         if (sentence) {
             let s = polishText(sentence);
+            
+            // 自動補主詞，使每句都像完整的小短文句子
+            s = addSubject(s, index);
             
             // 確保句子以標點符號結尾
             if (!/[。！？]$/.test(s)) {
@@ -736,20 +767,14 @@ function compileEssay() {
     if (cleaned.length === 0) return '';
     
     // ---- 組合成自然的短文 ----
-    // 策略：前後句之間去掉多餘空白，直接併成一段
-    // 若句子之間缺乏連接，自動補上自然的過渡詞
     let essay = '';
     
     cleaned.forEach((s, i) => {
         if (i === 0) {
-            // 第一句直接寫入
             essay = s;
         } else {
-            // 檢查前一句結尾與本句開頭，決定是否需要過渡
             const prev = essay.charAt(essay.length - 1);
-            const first = s.charAt(0);
             
-            // 前句以句號、驚嘆號或問號結尾時，直接併入
             if (prev === '。' || prev === '！' || prev === '？') {
                 essay += s;
             } else {
