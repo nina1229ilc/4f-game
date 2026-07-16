@@ -6,27 +6,96 @@ let sentences = [];
 let recognition = null;
 let isRecording = false;
 
-// ========== 情緒選項資料庫 ==========
+// ========== 情緒選項資料庫（依年級區分） ==========
 const feelingsDB = {
-    positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '滿足 😌', '有趣 😄', '感動 💖'],
-    challenge: ['有挑戰性 💪', '需要思考 🤔', '有點困難 😅', '想再試一次 🔄'],
-    neutral: ['平静 🍃', '專注 🎯', '好奇 🧐']
+    // 3年級用詞
+    grade3: {
+        positive: ['開心 😊', '好玩 😄', '有趣 😆', '喜歡 ❤️'],
+        challenge: ['有點難 😅', '想再試一次 🔄', '需要幫忙 🙋'],
+        neutral: ['還好 🙂', '专心 🎯']
+    },
+    // 4年級用詞
+    grade4: {
+        positive: ['開心 😊', '興奮 🎉', '有趣 😄', '感動 💖'],
+        challenge: ['有挑戰性 💪', '需要思考 🤔', '想再試一次 🔄'],
+        neutral: ['平静 🍃', '专注 🎯', '好奇 🧐']
+    },
+    // 5年級用詞
+    grade5: {
+        positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '滿足 😌'],
+        challenge: ['有挑戰性 💪', '需要思考 🤔', '想克服困難 💪'],
+        neutral: ['平静 🍃', '專注 🎯', '好奇 🧐']
+    },
+    // 6年級用詞
+    grade6: {
+        positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '充實 😌', '有成就感 🏆'],
+        challenge: ['有挑戰性 💪', '需要深入思考 🤔', '想持續努力 💪'],
+        neutral: ['平静 🍃', '專注 🎯', '好奇 🧐', '期待 🌟']
+    }
 };
 
-// ========== 學習發現資料庫 ==========
+// ========== 學習發現資料庫（依年級區分） ==========
 const findingsDB = {
-    general: ['原來如此！這跟我以前想的不一樣', '這個知識可以用在生活中', '我學會了一個新方法', '這跟其他科目有關係'],
-    science: ['科學真有趣，可以做實驗', '大自然有很多奧秘', '觀察和實驗很重要'],
-    language: ['閱讀可以學到很多東西', '寫作可以用不同的方式表達', '語言很有魅力'],
-    math: ['數學可以用來解決問題', '數學就在我們身邊', '思考問題有很多方法'],
-    social: ['歷史故事很有趣', '我們的生活跟環境有關係', '要關心我們的社會']
+    // 3年級用詞
+    grade3: {
+        general: ['原來是這樣！', '這個很有趣', '我學會了新東西'],
+        science: ['大自然好神奇', '實驗好好玩'],
+        language: ['故事好有趣', '我可以學到新字'],
+        math: ['數字好好玩', '可以用來數東西'],
+        social: ['歷史故事好有趣']
+    },
+    // 4年級用詞
+    grade4: {
+        general: ['原來如此！這跟我以前想的不一樣', '這個知識可以用在生活中', '我學會了一個新方法'],
+        science: ['科學真有趣，可以做實驗', '大自然有很多奧秘'],
+        language: ['閱讀可以學到很多東西', '寫作可以用不同的方式表達'],
+        math: ['數學可以用來解決問題', '思考問題有很多方法'],
+        social: ['歷史故事很有趣', '我們的生活跟環境有關係']
+    },
+    // 5年級用詞
+    grade5: {
+        general: ['原來如此！這跟我以前想的不一樣', '這個知識可以用在生活中', '我學會了一個新方法', '這跟其他科目有關係'],
+        science: ['科學真有趣，可以做實驗', '大自然有很多奧秘', '觀察和實驗很重要'],
+        language: ['閱讀可以學到很多東西', '寫作可以用不同的方式表達', '語言很有魅力'],
+        math: ['數學可以用來解決問題', '數學就在我們身邊', '思考問題有很多方法'],
+        social: ['歷史故事很有趣', '我們的生活跟環境有關係', '要關心我們的社會']
+    },
+    // 6年級用詞
+    grade6: {
+        general: ['原來如此！這跟我以前想的不一樣', '這個知識可以用在生活中，也能幫助別人', '我學會了一個新方法，可以應用在其他地方', '這跟其他科目有關係，可以跨领域思考'],
+        science: ['科學真有趣，可以做實驗驗證想法', '大自然有很多奧秘等待探索', '觀察和實驗是科學的重要方法'],
+        language: ['閱讀可以學到很多東西，也能增進表達能力', '寫作可以用不同的方式表達想法', '語言是溝通的橋樑'],
+        math: ['數學可以用來解決生活中的問題', '數學就在我們身邊', '思考問題有很多方法，要選擇最適合的'],
+        social: ['歷史故事很有趣，可以從中學習', '我們的生活跟環境有關係', '要關心我們的社會，做個負責任的公民']
+    }
 };
 
-// ========== 未來目標資料庫 ==========
+// ========== 未來目標資料庫（依年級區分） ==========
 const futureDB = {
-    general: ['下次我要更專心聽講', '我想繼續學習這個主題', '我要跟同學分享今天學到的', '下次我想問更多問題'],
-    try_new: ['我想試試看今天學到的方法', '下次我想自己動手做做看', '我要把今天學到的用在生活中'],
-    explore: ['我想探索更多相關的知識', '下次我想查更多資料', '我要找更多相關的書來看']
+    // 3年級用詞
+    grade3: {
+        general: ['下次我要更認真', '我想再學更多', '我要跟同學分享'],
+        try_new: ['我想試試看', '下次我想自己做做看'],
+        explore: ['我想看更多相關的書', '下次我想問老師更多問題']
+    },
+    // 4年級用詞
+    grade4: {
+        general: ['下次我要更專心聽講', '我想繼續學習這個主題', '我要跟同學分享今天學到的'],
+        try_new: ['下次我要更專心聽講', '我想繼續學習這個主題', '我要跟同學分享今天學到的', '下次我想問更多問題'],
+        explore: ['我想探索更多相關的知識', '下次我想查更多資料', '我要找更多相關的書來看']
+    },
+    // 5年級用詞
+    grade5: {
+        general: ['下次我要更專心聽講，深入學習', '我想繼續探索這個主題', '我要跟同學分享，一起討論'],
+        try_new: ['我想試試看今天學到的方法', '下次我想自己動手做做看', '我要把今天學到的用在生活中'],
+        explore: ['我想探索更多相關的知識', '下次我想查更多資料', '我要找更多相關的書來看']
+    },
+    // 6年級用詞
+    grade6: {
+        general: ['下次我要更專心聽講，深入學習並應用', '我想繼續探索這個主題，了解更多細節', '我要跟同學分享，一起討論並互相學習'],
+        try_new: ['我想試試看今天學到的方法，並記錄結果', '下次我想自己動手做做看，驗證想法', '我要把今天學到的用在生活中，幫助別人'],
+        explore: ['我想探索更多相關的知識，建立完整概念', '下次我想查更多資料，做深入研究', '我要找更多相關的書來看，擴展視野']
+    }
 };
 
 // 關卡資料（從伺服器載入或使用預設值）
@@ -89,19 +158,31 @@ function selectGrade(grade) {
     });
 }
 
+// ========== 取得年級對應的資料庫 ==========
+function getGradeDB(grade) {
+    switch (grade) {
+        case 3: return { feelings: feelingsDB.grade3, findings: findingsDB.grade3, future: futureDB.grade3 };
+        case 4: return { feelings: feelingsDB.grade4, findings: findingsDB.grade4, future: futureDB.grade4 };
+        case 5: return { feelings: feelingsDB.grade5, findings: findingsDB.grade5, future: futureDB.grade5 };
+        case 6: return { feelings: feelingsDB.grade6, findings: findingsDB.grade6, future: futureDB.grade6 };
+        default: return { feelings: feelingsDB.grade4, findings: findingsDB.grade4, future: futureDB.grade4 };
+    }
+}
+
 // ========== 參考答案生成 ==========
 function getFeelingSuggestions(factText) {
     const suggestions = [];
     const text = factText.toLowerCase();
+    const gradeDB = getGradeDB(studentGrade);
     
     // 根據事實內容推測可能的情緒
     if (text.includes('有趣') || text.includes('好玩') || text.includes('喜歡')) {
-        suggestions.push(...feelingsDB.positive.slice(0, 2));
+        suggestions.push(...gradeDB.feelings.positive.slice(0, 2));
     } else if (text.includes('難') || text.includes('挑戰') || text.includes('不會')) {
-        suggestions.push(...feelingsDB.challenge.slice(0, 2));
+        suggestions.push(...gradeDB.feelings.challenge.slice(0, 2));
     } else {
         // 預設提供正向情緒選項
-        suggestions.push(feelingsDB.positive[0], feelingsDB.neutral[2]);
+        suggestions.push(gradeDB.feelings.positive[0], gradeDB.feelings.neutral[1]);
     }
     
     return suggestions;
@@ -110,19 +191,19 @@ function getFeelingSuggestions(factText) {
 function getFindingsSuggestions(factText, feelingText) {
     const suggestions = [];
     const fact = factText.toLowerCase();
-    const feeling = feelingText.toLowerCase();
+    const gradeDB = getGradeDB(studentGrade);
     
     // 根據事實內容推測學習發現
     if (fact.includes('科學') || fact.includes('實驗') || fact.includes('自然')) {
-        suggestions.push(...findingsDB.science.slice(0, 2));
+        suggestions.push(...gradeDB.findings.science.slice(0, 2));
     } else if (fact.includes('國語') || fact.includes('讀') || fact.includes('寫')) {
-        suggestions.push(...findingsDB.language.slice(0, 2));
+        suggestions.push(...gradeDB.findings.language.slice(0, 2));
     } else if (fact.includes('數學') || fact.includes('計算') || fact.includes('數字')) {
-        suggestions.push(...findingsDB.math.slice(0, 2));
+        suggestions.push(...gradeDB.findings.math.slice(0, 2));
     } else if (fact.includes('社會') || fact.includes('歷史') || fact.includes('生活')) {
-        suggestions.push(...findingsDB.social.slice(0, 2));
+        suggestions.push(...gradeDB.findings.social.slice(0, 2));
     } else {
-        suggestions.push(...findingsDB.general.slice(0, 2));
+        suggestions.push(...gradeDB.findings.general.slice(0, 2));
     }
     
     return suggestions;
@@ -130,12 +211,13 @@ function getFindingsSuggestions(factText, feelingText) {
 
 function getFutureSuggestions(factText, feelingText, findingText) {
     const suggestions = [];
+    const gradeDB = getGradeDB(studentGrade);
     
     // 根據前面的內容推測未來目標
     if (findingText.includes('想') || findingText.includes('試')) {
-        suggestions.push(...futureDB.try_new.slice(0, 2));
+        suggestions.push(...gradeDB.future.try_new.slice(0, 2));
     } else {
-        suggestions.push(...futureDB.general.slice(0, 2));
+        suggestions.push(...gradeDB.future.general.slice(0, 2));
     }
     
     return suggestions;
