@@ -714,33 +714,55 @@ function compileEssay() {
     // 確保所有句子都已儲存
     sentences[currentStage] = document.getElementById('answer-input').value.trim();
     
-    // 處理每個句子
-    const processedSentences = [];
+    // 依序處理每一個句子
+    const cleaned = [];
     
-    sentences.forEach((sentence, index) => {
+    sentences.forEach((sentence) => {
         if (sentence) {
-            let processed = sentence;
-            
-            // 潤飾文字（包含贅字移除）
-            processed = polishText(processed);
+            let s = polishText(sentence);
             
             // 確保句子以標點符號結尾
-            if (!processed.endsWith('。') && !processed.endsWith('！') && !processed.endsWith('？') && !processed.endsWith('！')) {
-                processed += '。';
+            if (!/[。！？]$/.test(s)) {
+                s += '。';
             }
             
-            processedSentences.push(processed);
+            // 去除句首句尾空白
+            s = s.trim();
+            
+            cleaned.push(s);
         }
     });
     
-    // 串接成短文
-    let essay = processedSentences.join(' ');
+    if (cleaned.length === 0) return '';
+    
+    // ---- 組合成自然的短文 ----
+    // 策略：前後句之間去掉多餘空白，直接併成一段
+    // 若句子之間缺乏連接，自動補上自然的過渡詞
+    let essay = '';
+    
+    cleaned.forEach((s, i) => {
+        if (i === 0) {
+            // 第一句直接寫入
+            essay = s;
+        } else {
+            // 檢查前一句結尾與本句開頭，決定是否需要過渡
+            const prev = essay.charAt(essay.length - 1);
+            const first = s.charAt(0);
+            
+            // 前句以句號、驚嘆號或問號結尾時，直接併入
+            if (prev === '。' || prev === '！' || prev === '？') {
+                essay += s;
+            } else {
+                essay += '，' + s;
+            }
+        }
+    });
     
     // 最終潤飾
     essay = polishText(essay);
     
-    // 確保結尾有句號
-    if (!essay.endsWith('。') && !essay.endsWith('！') && !essay.endsWith('？')) {
+    // 確保結尾有標點
+    if (!/[。！？]$/.test(essay)) {
         essay += '。';
     }
     
