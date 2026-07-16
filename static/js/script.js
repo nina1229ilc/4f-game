@@ -627,12 +627,25 @@ const typoCorrections = {
 function polishText(text) {
     let polished = text;
     
-    // 1. 修正錯字
+    // 1. 移除表情符號（保留標點符號）
+    polished = polished.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
+    polished = polished.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
+    polished = polished.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
+    polished = polished.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
+    polished = polished.replace(/[\u{2702}-\u{27B0}]/gu, '');
+    polished = polished.replace(/[\u{24C2}-\u{1F251}]/gu, '');
+    polished = polished.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
+    polished = polished.replace(/[\u{1FA00}-\u{1FA6F}]/gu, '');
+    polished = polished.replace(/[\u{1FA70}-\u{1FAFF}]/gu, '');
+    polished = polished.replace(/[\u{2600}-\u{26FF}]/gu, '');
+    polished = polished.replace(/[\u{2700}-\u{27BF}]/gu, '');
+    
+    // 2. 修正錯字
     for (const [typo, correct] of Object.entries(typoCorrections)) {
         polished = polished.replace(new RegExp(typo, 'g'), correct);
     }
     
-    // 2. 移除贅字和贅詞（安全版本，避免亂碼）
+    // 3. 移除贅字和贅詞（安全版本，避免亂碼）
     // 簡化版：只處理明確的贅字
     polished = polished.replace(/其實我覺得/g, '我覺得');
     polished = polished.replace(/然後我覺得/g, '我覺得');
@@ -650,7 +663,7 @@ function polishText(text) {
     polished = polished.replace(/一般來說/g, '一般');
     polished = polished.replace(/特別來說/g, '特別');
     
-    // 3. 移除重複字（安全版本）
+    // 4. 移除重複字（安全版本）
     // 移除連續重複的語助詞
     polished = polished.replace(/嗯嗯/g, '');
     polished = polished.replace(/對對對/g, '對');
@@ -672,10 +685,10 @@ function polishText(text) {
     polished = polished.replace(/並且並且/g, '並且');
     polished = polished.replace(/至於至於/g, '至於');
     
-    // 4. 移除多餘的空白
+    // 5. 移除多餘的空白
     polished = polished.replace(/\s+/g, ' ').trim();
     
-    // 5. 修正重複標點符號
+    // 6. 修正重複標點符號
     polished = polished.replace(/。，/g, '。');
     polished = polished.replace(/。、/g, '。');
     polished = polished.replace(/，。/g, '。');
@@ -684,7 +697,7 @@ function polishText(text) {
     polished = polished.replace(/，，+/g, '，');
     polished = polished.replace(/、、+/g, '、');
     
-    // 6. 移除句首的空白
+    // 7. 移除句首的空白
     polished = polished.replace(/^[\s]+/, '');
     
     return polished;
