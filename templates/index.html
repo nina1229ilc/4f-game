@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4F 心得闖關遊戲</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 開場畫面 -->
+    <div id="start-screen" class="screen active">
+        <div class="clouds">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+        </div>
+        <div class="start-content">
+            <div class="title-wrapper">
+                <h1 class="game-title">
+                    <span class="title-emoji">🎮</span>
+                    4F 心得闖關
+                    <span class="title-emoji">🎯</span>
+                </h1>
+                <p class="subtitle">完成四個關卡，產出你的學習心得短文！</p>
+            </div>
+            
+            <div class="character">
+                <div class="robot">
+                    <div class="robot-head">
+                        <div class="robot-eyes">
+                            <div class="eye left"></div>
+                            <div class="eye right"></div>
+                        </div>
+                        <div class="robot-mouth"></div>
+                    </div>
+                    <div class="robot-body"></div>
+                </div>
+                <div class="speech-bubble">
+                    <p>嗨！我是你的學習小幫手 👋</p>
+                    <p>準備好開始闖關了嗎？</p>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="student-name">請輸入你的名字：</label>
+                <input type="text" id="student-name" placeholder="小明" maxlength="20">
+            </div>
+
+            <button id="start-btn" class="btn btn-start" onclick="startGame()">
+                <span class="btn-text">開始挑戰！</span>
+                <span class="btn-icon">🚀</span>
+            </button>
+
+            <div class="stage-preview">
+                <div class="stage-dot" style="--dot-color: #FF6B6B">1</div>
+                <div class="stage-line"></div>
+                <div class="stage-dot" style="--dot-color: #4ECDC4">2</div>
+                <div class="stage-line"></div>
+                <div class="stage-dot" style="--dot-color: #FFE66D">3</div>
+                <div class="stage-line"></div>
+                <div class="stage-dot" style="--dot-color: #95E1D3">4</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲畫面 -->
+    <div id="game-screen" class="screen">
+        <!-- 進度條 -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <span id="current-stage">1</span> / 4
+            </div>
+        </div>
+
+        <!-- 關卡內容 -->
+        <div class="game-content">
+            <div class="stage-header">
+                <div id="stage-emoji" class="stage-emoji">📋</div>
+                <h2 id="stage-title" class="stage-title">第1關：事實</h2>
+            </div>
+
+            <div class="question-card">
+                <div class="question-bubble">
+                    <p id="stage-question" class="question-text">今天這節課，你學到了什麼？</p>
+                </div>
+                <div class="hint-box">
+                    <span class="hint-icon">💡</span>
+                    <p id="stage-hint" class="hint-text">想想看，老師今天教了什麼內容？</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <textarea 
+                    id="answer-input" 
+                    class="answer-textarea"
+                    placeholder="在這裡輸入你的答案..."
+                    rows="4"
+                ></textarea>
+                
+                <div class="input-methods">
+                    <button id="voice-btn" class="btn btn-voice" onmousedown="startVoice()" onmouseup="stopVoice()" onmouseleave="stopVoice()">
+                        <span class="mic-icon">🎤</span>
+                        <span>按住說話</span>
+                    </button>
+                    <div id="voice-status" class="voice-status hidden">
+                        <div class="pulse-ring"></div>
+                        <span>聆聽中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="prev-btn" class="btn btn-secondary" onclick="prevStage()" style="visibility: hidden;">
+                    ← 上一關
+                </button>
+                <button id="next-btn" class="btn btn-primary" onclick="nextStage()">
+                    下一關 →
+                </button>
+            </div>
+        </div>
+
+        <!-- 關卡小精靈 -->
+        <div class="stage-fairy" id="stage-fairy">
+            <div class="fairy-body">🧚</div>
+            <div class="fairy-speech" id="fairy-speech">加油！你做得很棒！</div>
+        </div>
+    </div>
+
+    <!-- 成果畫面 -->
+    <div id="result-screen" class="screen">
+        <div class="confetti-container" id="confetti"></div>
+        
+        <div class="result-content">
+            <div class="success-badge">
+                <span class="badge-icon">🏆</span>
+                <span class="badge-text">通關成功！</span>
+            </div>
+
+            <h2 class="result-title">你的學習心得短文</h2>
+            
+            <div class="essay-card">
+                <div class="essay-header">
+                    <span id="result-name">學生</span> 的學習心得
+                </div>
+                <div id="essay-content" class="essay-content">
+                    <!-- 短文內容會在這裡顯示 -->
+                </div>
+                <div class="essay-footer">
+                    <span class="date-stamp" id="essay-date"></span>
+                </div>
+            </div>
+
+            <div class="sentences-review">
+                <h3>📝 你說的四句話</h3>
+                <div id="sentences-list" class="sentences-list">
+                    <!-- 四句話會在這裡顯示 -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="copyEssay()">
+                    📋 複製短文
+                </button>
+                <button class="btn btn-primary" onclick="saveEssay()">
+                    💾 儲存作品
+                </button>
+                <button class="btn btn-restart" onclick="restartGame()">
+                    🔄 再玩一次
+                </button>
+            </div>
+
+            <div id="save-message" class="save-message hidden">
+                ✅ 作品已儲存！
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效 -->
+    <audio id="correct-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH+JkI+KfnZwaXF1gomPj4yDe3RzdH2Lk5GKf3dxdH6NlZSNhH12cnOAjZeWj4Z/dnN0gY6Yl5CJf3d0dIKPmpiQiX93dHSCj5qZkYl/d3R0g4+bmZGKf3h1dYSQnJqSin94dXWFkJ2bkoqAeXZ2hpGenJKLgHp3d4eSnp2Ti4B6d3iIkp+elIuBend4iZOhn5WMgnp4eYqUoqCWjYN7eXqLlqOimI6EfHp7jJekopmPhH17fI2YpaOamZCHfnx9jpmnpJubkoivhH+BgoSGh4iIh4WChIaHiImJiIeFgYKEhoeIiYmIh4WBgoSGh4iJiYiHhYGChIaHiImJiIeFgYKEhoeIiYmIh4WBgoSGh4iJiYiHhYGChIaH"> 
+    </audio>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
