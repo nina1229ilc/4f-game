@@ -622,18 +622,14 @@ const typoCorrections = {
 function polishText(text) {
     let polished = text;
     
-    // 1. 移除表情符號（保留標點符號）
+    // 1. 移除表情符號（保留標點符號和中文）
     polished = polished.replace(/[\u{1F600}-\u{1F64F}]/gu, '');
     polished = polished.replace(/[\u{1F300}-\u{1F5FF}]/gu, '');
     polished = polished.replace(/[\u{1F680}-\u{1F6FF}]/gu, '');
     polished = polished.replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '');
-    polished = polished.replace(/[\u{2702}-\u{27B0}]/gu, '');
-    polished = polished.replace(/[\u{24C2}-\u{1F251}]/gu, '');
     polished = polished.replace(/[\u{1F900}-\u{1F9FF}]/gu, '');
     polished = polished.replace(/[\u{1FA00}-\u{1FA6F}]/gu, '');
     polished = polished.replace(/[\u{1FA70}-\u{1FAFF}]/gu, '');
-    polished = polished.replace(/[\u{2600}-\u{26FF}]/gu, '');
-    polished = polished.replace(/[\u{2700}-\u{27BF}]/gu, '');
     
     // 2. 修正錯字
     for (const [typo, correct] of Object.entries(typoCorrections)) {
