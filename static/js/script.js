@@ -1,9 +1,33 @@
 // ========== 全域變數 ==========
 let currentStage = 0;
 let studentName = '';
+let studentGrade = 0;
 let sentences = [];
 let recognition = null;
 let isRecording = false;
+
+// ========== 情緒選項資料庫 ==========
+const feelingsDB = {
+    positive: ['開心 😊', '興奮 🎉', '驚奇 ✨', '滿足 😌', '有趣 😄', '感動 💖'],
+    challenge: ['有挑戰性 💪', '需要思考 🤔', '有點困難 😅', '想再試一次 🔄'],
+    neutral: ['平静 🍃', '專注 🎯', '好奇 🧐']
+};
+
+// ========== 學習發現資料庫 ==========
+const findingsDB = {
+    general: ['原來如此！這跟我以前想的不一樣', '這個知識可以用在生活中', '我學會了一個新方法', '這跟其他科目有關係'],
+    science: ['科學真有趣，可以做實驗', '大自然有很多奧秘', '觀察和實驗很重要'],
+    language: ['閱讀可以學到很多東西', '寫作可以用不同的方式表達', '語言很有魅力'],
+    math: ['數學可以用來解決問題', '數學就在我們身邊', '思考問題有很多方法'],
+    social: ['歷史故事很有趣', '我們的生活跟環境有關係', '要關心我們的社會']
+};
+
+// ========== 未來目標資料庫 ==========
+const futureDB = {
+    general: ['下次我要更專心聽講', '我想繼續學習這個主題', '我要跟同學分享今天學到的', '下次我想問更多問題'],
+    try_new: ['我想試試看今天學到的方法', '下次我想自己動手做做看', '我要把今天學到的用在生活中'],
+    explore: ['我想探索更多相關的知識', '下次我想查更多資料', '我要找更多相關的書來看']
+};
 
 // 關卡資料（從伺服器載入或使用預設值）
 const stages = [
@@ -52,6 +76,102 @@ const stages = [
         fairyMsg: '完成所有關卡！你太厲害了！ 🏆'
     }
 ];
+
+// ========== 年級選擇 ==========
+function selectGrade(grade) {
+    studentGrade = grade;
+    // 更新按鈕樣式
+    document.querySelectorAll('.grade-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (parseInt(btn.dataset.grade) === grade) {
+            btn.classList.add('selected');
+        }
+    });
+}
+
+// ========== 參考答案生成 ==========
+function getFeelingSuggestions(factText) {
+    const suggestions = [];
+    const text = factText.toLowerCase();
+    
+    // 根據事實內容推測可能的情緒
+    if (text.includes('有趣') || text.includes('好玩') || text.includes('喜歡')) {
+        suggestions.push(...feelingsDB.positive.slice(0, 2));
+    } else if (text.includes('難') || text.includes('挑戰') || text.includes('不會')) {
+        suggestions.push(...feelingsDB.challenge.slice(0, 2));
+    } else {
+        // 預設提供正向情緒選項
+        suggestions.push(feelingsDB.positive[0], feelingsDB.neutral[2]);
+    }
+    
+    return suggestions;
+}
+
+function getFindingsSuggestions(factText, feelingText) {
+    const suggestions = [];
+    const fact = factText.toLowerCase();
+    const feeling = feelingText.toLowerCase();
+    
+    // 根據事實內容推測學習發現
+    if (fact.includes('科學') || fact.includes('實驗') || fact.includes('自然')) {
+        suggestions.push(...findingsDB.science.slice(0, 2));
+    } else if (fact.includes('國語') || fact.includes('讀') || fact.includes('寫')) {
+        suggestions.push(...findingsDB.language.slice(0, 2));
+    } else if (fact.includes('數學') || fact.includes('計算') || fact.includes('數字')) {
+        suggestions.push(...findingsDB.math.slice(0, 2));
+    } else if (fact.includes('社會') || fact.includes('歷史') || fact.includes('生活')) {
+        suggestions.push(...findingsDB.social.slice(0, 2));
+    } else {
+        suggestions.push(...findingsDB.general.slice(0, 2));
+    }
+    
+    return suggestions;
+}
+
+function getFutureSuggestions(factText, feelingText, findingText) {
+    const suggestions = [];
+    
+    // 根據前面的內容推測未來目標
+    if (findingText.includes('想') || findingText.includes('試')) {
+        suggestions.push(...futureDB.try_new.slice(0, 2));
+    } else {
+        suggestions.push(...futureDB.general.slice(0, 2));
+    }
+    
+    return suggestions;
+}
+
+function showSuggestions(suggestions) {
+    const container = document.getElementById('suggestions-container');
+    container.innerHTML = '';
+    
+    if (suggestions.length === 0) {
+        container.classList.add('hidden');
+        return;
+    }
+    
+    const title = document.createElement('div');
+    title.className = 'suggestions-title';
+    title.textContent = '💡 參考答案（點擊選擇）：';
+    container.appendChild(title);
+    
+    suggestions.forEach(suggestion => {
+        const btn = document.createElement('button');
+        btn.className = 'suggestion-btn';
+        btn.textContent = suggestion;
+        btn.onclick = function() {
+            const textarea = document.getElementById('answer-input');
+            textarea.value = suggestion;
+            sentences[currentStage] = suggestion;
+            // 移除選中效果
+            document.querySelectorAll('.suggestion-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        };
+        container.appendChild(btn);
+    });
+    
+    container.classList.remove('hidden');
+}
 
 // ========== 語音辨識設定 ==========
 function initSpeechRecognition() {
@@ -141,6 +261,11 @@ function startGame() {
         return;
     }
     
+    if (!studentGrade) {
+        alert('請選擇你的年級！');
+        return;
+    }
+    
     // 初始化句子陣列
     sentences = [''];
     currentStage = 0;
@@ -187,6 +312,25 @@ function loadStage(index) {
     
     // 更新小精靈
     document.getElementById('fairy-speech').textContent = stage.fairyMsg;
+    
+    // 根據關卡顯示參考答案
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    if (index === 0) {
+        // 第一關：不顯示參考答案
+        suggestionsContainer.classList.add('hidden');
+    } else if (index === 1) {
+        // 第二關：根據第一關內容顯示情緒選項
+        const suggestions = getFeelingSuggestions(sentences[0]);
+        showSuggestions(suggestions);
+    } else if (index === 2) {
+        // 第三關：根據前兩關顯示學習發現選項
+        const suggestions = getFindingsSuggestions(sentences[0], sentences[1]);
+        showSuggestions(suggestions);
+    } else if (index === 3) {
+        // 第四關：顯示未來目標選項
+        const suggestions = getFutureSuggestions(sentences[0], sentences[1], sentences[2]);
+        showSuggestions(suggestions);
+    }
     
     // 動畫效果
     document.querySelector('.stage-emoji').style.animation = 'none';

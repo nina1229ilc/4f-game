@@ -47,6 +47,16 @@
                 <input type="text" id="student-name" placeholder="小明" maxlength="20">
             </div>
 
+            <div class="input-group">
+                <label>請選擇你的年級：</label>
+                <div class="grade-selector">
+                    <button class="grade-btn" data-grade="3" onclick="selectGrade(3)">三年級</button>
+                    <button class="grade-btn" data-grade="4" onclick="selectGrade(4)">四年級</button>
+                    <button class="grade-btn" data-grade="5" onclick="selectGrade(5)">五年級</button>
+                    <button class="grade-btn" data-grade="6" onclick="selectGrade(6)">六年級</button>
+                </div>
+            </div>
+
             <button id="start-btn" class="btn btn-start" onclick="startGame()">
                 <span class="btn-text">開始挑戰！</span>
                 <span class="btn-icon">🚀</span>
@@ -94,6 +104,10 @@
             </div>
 
             <div class="input-area">
+                <div id="suggestions-container" class="suggestions-container hidden">
+                    <!-- 參考答案會在這裡顯示 -->
+                </div>
+                
                 <textarea 
                     id="answer-input" 
                     class="answer-textarea"
