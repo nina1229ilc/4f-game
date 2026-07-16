@@ -528,80 +528,15 @@ function polishText(text) {
 function optimizeSentenceFlow(sentences) {
     if (sentences.length === 0) return '';
     
-    // 為每個句子添加適當的連接詞
-    const optimizedSentences = [];
-    
-    // 第一關和第二關之間的連接詞
-    const factToFeelingConnectors = [
-        '學習了這些之後，',
-        '了解了這些內容後，',
-        '學到這些知識後，',
-        '知道這些之後，',
-        '學習這些知識後，'
-    ];
-    
-    // 第二關和第三關之間的連接詞
-    const feelingToFindingConnectors = [
-        '在這個過程中，',
-        '透過這次學習，',
-        '在學習的同時，',
-        '在這個體驗中，',
-        '在學習的過程中，'
-    ];
-    
-    // 第三關和第四關之間的連接詞
-    const findingToFutureConnectors = [
-        '基於這些發現，',
-        '有了這些體悟，',
-        '從這些發現中，',
-        '因為這些學習，',
-        '從這次經驗中，'
-    ];
-    
-    sentences.forEach((sentence, index) => {
-        let optimized = sentence;
-        
-        // 根據關卡添加適當的開頭連接詞
-        if (index === 1) {
-            // 第二關：感受 - 添加從事實到感受的連接詞
-            const feelingConnectors = ['我覺得', '對我來說', '這讓我感到', '我的感受是', '對此我覺得'];
-            const hasFeelingConnector = feelingConnectors.some(c => optimized.startsWith(c));
-            if (!hasFeelingConnector) {
-                // 隨機選擇一個連接詞
-                const connector = factToFeelingConnectors[Math.floor(Math.random() * factToFeelingConnectors.length)];
-                optimized = connector + optimized;
-            }
-        } else if (index === 2) {
-            // 第三關：發現 - 添加從感受到發現的連接詞
-            const findingConnectors = ['我發現', '原來', '我了解到', '透過這次學習', '這讓我想到'];
-            const hasFindingConnector = findingConnectors.some(c => optimized.startsWith(c));
-            if (!hasFindingConnector) {
-                // 隨機選擇一個連接詞
-                const connector = feelingToFindingConnectors[Math.floor(Math.random() * feelingToFindingConnectors.length)];
-                optimized = connector + optimized;
-            }
-        } else if (index === 3) {
-            // 第四關：未來 - 添加從發現到未來的連接詞
-            const futureConnectors = ['下次', '以後', '未來', '接下來', '從今以後'];
-            const hasFutureConnector = futureConnectors.some(c => optimized.startsWith(c));
-            if (!hasFutureConnector) {
-                // 隨機選擇一個連接詞
-                const connector = findingToFutureConnectors[Math.floor(Math.random() * findingToFutureConnectors.length)];
-                optimized = connector + optimized;
-            }
-        }
-        
-        optimizedSentences.push(optimized);
-    });
-    
-    return optimizedSentences;
+    // 簡單的句子優化，不添加額外連接詞
+    return sentences;
 }
 
 // ========== 句子連接詞資料庫 ==========
 const connectors = {
-    feeling: ['因此', '所以', '這讓我觉得', '這使我感到', '對我來說'],
-    finding: ['透過這次學習', '我發現', '我了解到', '原來', '這讓我想到'],
-    future: ['接下來', '以後', '下次', '未來', '從今以後']
+    feeling: [],
+    finding: [],
+    future: []
 };
 
 // ========== 串接短文 ==========
@@ -628,11 +563,8 @@ function compileEssay() {
         }
     });
     
-    // 優化句子流暢度
-    const optimizedSentences = optimizeSentenceFlow(processedSentences);
-    
     // 串接成短文
-    let essay = optimizedSentences.join(' ');
+    let essay = processedSentences.join(' ');
     
     // 最終潤飾
     essay = polishText(essay);

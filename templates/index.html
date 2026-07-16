@@ -183,16 +183,16 @@
                 <button class="btn btn-secondary" onclick="copyEssay()">
                     📋 複製短文
                 </button>
-                <button class="btn btn-primary" onclick="saveEssay()">
-                    💾 儲存作品
-                </button>
+                <a href="{{ google_form_url }}" target="_blank" class="btn btn-primary">
+                    📝 前往填報
+                </a>
                 <button class="btn btn-restart" onclick="restartGame()">
                     🔄 再玩一次
                 </button>
             </div>
 
-            <div id="save-message" class="save-message hidden">
-                ✅ 作品已儲存！
+            <div class="form-notice">
+                請將短文複製後，貼到 Google 表單中繳交
             </div>
         </div>
     </div>

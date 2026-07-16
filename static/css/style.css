@@ -968,6 +968,33 @@ body {
     display: none;
 }
 
+/* ========== 填報通知 ========== */
+.form-notice {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    border: 2px solid #FFE66D;
+    border-radius: 15px;
+    padding: 15px 20px;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #856404;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0984e3 0%, #0773c5 100%);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(9, 132, 227, 0.5);
+}
+
 /* ========== 響應式設計 ========== */
 @media (max-width: 600px) {
     .game-title {
