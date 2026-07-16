@@ -466,10 +466,93 @@ function polishText(text) {
         polished = polished.replace(new RegExp(typo, 'g'), correct);
     }
     
-    // 2. 移除多餘的空白
+    // 2. 移除贅字和贅詞
+    const fillerWords = [
+        // 重複詞
+        /(.)\1{2,}/g,  // 移除重複三次以上的字
+        // 常見贅字
+        /其實我覺得/g, '我覺得',
+        /然後我覺得/g, '我覺得',
+        /就是說/g, '就是',
+        /然後呢/g, '然後',
+        /所以說/g, '所以',
+        /的話(?=[，。！？])/g, '',
+        /(?<=[，。！？])的話/g, '',
+        /大概(?=[，。！？])/g, '',
+        /(?<=[，。！？])大概/g, '',
+        /好像(?=[，。！？])/g, '',
+        /(?<=[，。！？])好像/g, '',
+        /可能(?=[，。！？])/g, '',
+        /(?<=[，。！？])可能/g, '',
+        /應該(?=[，。！？])/g, '',
+        /(?<=[，。！？])應該/g, '',
+        /不過(?=[，。！？])/g, '',
+        /(?<=[，。！？])不過/g, '',
+        /但是(?=[，。！？])/g, '',
+        /(?<=[，。！？])但是/g, '',
+        /而且(?=[，。！？])/g, '',
+        /(?<=[，。！？])而且/g, '',
+        /所以(?=[，。！？])/g, '',
+        /(?<=[，。！？])所以/g, '',
+        /因為(?=[，。！？])/g, '',
+        /(?<=[，。！？])因為/g, '',
+        /如果(?=[，。！？])/g, '',
+        /(?<=[，。！？])如果/g, '',
+        /那麼(?=[，。！？])/g, '',
+        /(?<=[，。！？])那麼/g, '',
+        /而且(?=[，。！？])/g, '',
+        /(?<=[，。！？])而且/g, '',
+        /然後(?=[，。！？])/g, '',
+        /(?<=[，。！？])然後/g, '',
+        /可是(?=[，。！？])/g, '',
+        /(?<=[，。！？])可是/g, '',
+        /雖然(?=[，。！？])/g, '',
+        /(?<=[，。！？])雖然/g, '',
+        /或者(?=[，。！？])/g, '',
+        /(?<=[，。！？])或者/g, '',
+        /還有(?=[，。！？])/g, '',
+        /(?<=[，。！？])還有/g, '',
+        /另外(?=[，。！？])/g, '',
+        /(?<=[，。！？])另外/g, '',
+        /並且(?=[，。！？])/g, '',
+        /(?<=[，。！？])並且/g, '',
+        /至於(?=[，。！？])/g, '',
+        /(?<=[，。！？])至於/g, '',
+        /順便一提/g, '',
+        /順便說一下/g, '',
+        /總之來說/g, '總之',
+        /整體來說/g, '整體',
+        /簡單來說/g, '簡單',
+        /基本上來說/g, '基本上',
+        /嚴格來說/g, '嚴格',
+        /廣泛來說/g, '廣泛',
+        /一般來說/g, '一般',
+        /特別來說/g, '特別',
+        /重要來說/g, '重要',
+        /有趣來說/g, '有趣',
+        /開心來說/g, '開心',
+        /難過來說/g, '難過',
+        /驚訝來說/g, '驚訝',
+        /感動來說/g, '感動',
+        /有趣來說/g, '有趣',
+        /重要來說/g, '重要',
+        /難過來說/g, '難過',
+        /驚訝來說/g, '驚訝',
+        /感動來說/g, '感動',
+        /開心來說/g, '開心'
+    ];
+    
+    // 執行贅字移除（使用替換陣列）
+    for (let i = 0; i < fillerWords.length; i += 2) {
+        const pattern = fillerWords[i];
+        const replacement = fillerWords[i + 1];
+        polished = polished.replace(pattern, replacement);
+    }
+    
+    // 3. 移除多餘的空白
     polished = polished.replace(/\s+/g, ' ').trim();
     
-    // 3. 修正重複標點符號
+    // 4. 修正重複標點符號
     polished = polished.replace(/。，/g, '。');
     polished = polished.replace(/。、/g, '。');
     polished = polished.replace(/，。/g, '。');
@@ -478,13 +561,53 @@ function polishText(text) {
     polished = polished.replace(/，，+/g, '，');
     polished = polished.replace(/、、+/g, '、');
     
-    // 4. 確保句首大寫（中文不需要，但處理英文）
+    // 5. 確保句首大寫（中文不需要，但處理英文）
     polished = polished.replace(/([。！？]\s*)([a-z])/g, (match, sep, letter) => sep + letter.toUpperCase());
     
-    // 5. 移除句首的空白
+    // 6. 移除句首的空白
     polished = polished.replace(/^[\s]+/, '');
     
     return polished;
+}
+
+// ========== 句子流暢度優化 ==========
+function optimizeSentenceFlow(sentences) {
+    if (sentences.length === 0) return '';
+    
+    // 為每個句子添加適當的連接詞
+    const optimizedSentences = [];
+    
+    sentences.forEach((sentence, index) => {
+        let optimized = sentence;
+        
+        // 根據關卡添加適當的開頭連接詞
+        if (index === 1) {
+            // 第二關：感受
+            const feelingConnectors = ['我覺得', '對我來說', '這讓我感到', '我的感受是', '對此我覺得'];
+            const hasFeelingConnector = feelingConnectors.some(c => optimized.startsWith(c));
+            if (!hasFeelingConnector) {
+                // 不強制添加，保持自然
+            }
+        } else if (index === 2) {
+            // 第三關：發現
+            const findingConnectors = ['我發現', '原來', '我了解到', '透過這次學習', '這讓我想到'];
+            const hasFindingConnector = findingConnectors.some(c => optimized.startsWith(c));
+            if (!hasFindingConnector) {
+                // 不強制添加，保持自然
+            }
+        } else if (index === 3) {
+            // 第四關：未來
+            const futureConnectors = ['下次', '以後', '未來', '接下來', '從今以後'];
+            const hasFutureConnector = futureConnectors.some(c => optimized.startsWith(c));
+            if (!hasFutureConnector) {
+                // 不強制添加，保持自然
+            }
+        }
+        
+        optimizedSentences.push(optimized);
+    });
+    
+    return optimizedSentences;
 }
 
 // ========== 句子連接詞資料庫 ==========
@@ -506,7 +629,7 @@ function compileEssay() {
         if (sentence) {
             let processed = sentence;
             
-            // 潤飾文字
+            // 潤飾文字（包含贅字移除）
             processed = polishText(processed);
             
             // 確保句子以標點符號結尾
@@ -514,23 +637,15 @@ function compileEssay() {
                 processed += '。';
             }
             
-            // 為第二句到第四句添加連接詞（如果句子沒有開頭連接詞）
-            if (index > 0 && processedSentences.length > 0) {
-                const hasConnector = connectors.feeling.some(c => processed.startsWith(c)) ||
-                                   connectors.finding.some(c => processed.startsWith(c)) ||
-                                   connectors.future.some(c => processed.startsWith(c));
-                
-                if (!hasConnector) {
-                    // 不強制添加連接詞，保持學生原始表達
-                }
-            }
-            
             processedSentences.push(processed);
         }
     });
     
+    // 優化句子流暢度
+    const optimizedSentences = optimizeSentenceFlow(processedSentences);
+    
     // 串接成短文
-    let essay = processedSentences.join(' ');
+    let essay = optimizedSentences.join(' ');
     
     // 最終潤飾
     essay = polishText(essay);
