@@ -856,6 +856,28 @@ body {
     padding: 15px 25px;
     font-size: 1.1rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.grade-badge {
+    background: rgba(255,255,255,0.3);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.essay-polish-note {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    padding: 10px 25px;
+    font-size: 0.85rem;
+    color: #856404;
+    text-align: center;
+    border-top: 1px solid #ffeeba;
+    border-bottom: 1px solid #ffeeba;
 }
 
 .essay-content {

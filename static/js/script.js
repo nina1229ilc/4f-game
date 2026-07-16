@@ -369,24 +369,178 @@ function prevStage() {
 }
 
 // ========== 串接短文 ==========
+// ========== 錯字訂正資料庫 ==========
+const typoCorrections = {
+    // 常見錯字
+    '因爲': '因為',
+    '己经': '已經',
+    '觉得': '覺得',
+    '学到': '學到',
+    '有趣': '有趣',
+    '开心': '開心',
+    '发现': '發現',
+    '学习': '學習',
+    '老师': '老師',
+    '同学': '同學',
+    '感觉': '感覺',
+    '想要': '想要',
+    '可以': '可以',
+    '真的': '真的',
+    '非常': '非常',
+    '以后': '以後',
+    '所以': '所以',
+    '而且': '而且',
+    '虽然': '雖然',
+    '但是': '但是',
+    '因为': '因為',
+    '如果': '如果',
+    '这样': '這樣',
+    '那样': '那樣',
+    '什么': '什麼',
+    '怎么': '怎麼',
+    '为什么': '為什麼',
+    '這裡': '這裡',
+    '那里': '那裡',
+    '哪里': '哪裡',
+    '甚麼': '什麼',
+    '怎麽': '怎麼',
+    '麽': '麼',
+    '著': '著',
+    '了': '了',
+    '過': '過',
+    '會': '會',
+    '對': '對',
+    '從': '從',
+    '給': '給',
+    '讓': '讓',
+    '與': '與',
+    '及': '及',
+    '或': '或',
+    '而': '而',
+    '但': '但',
+    '若': '若',
+    '如': '如',
+    '因': '因',
+    '所': '所',
+    '以': '以',
+    '於': '於',
+    '這': '這',
+    '那': '那',
+    '哪': '哪',
+    '個': '個',
+    '們': '們',
+    '嗎': '嗎',
+    '呢': '呢',
+    '吧': '吧',
+    '啦': '啦',
+    '囉': '囉',
+    '喔': '喔',
+    '噢': '噢',
+    '嗯': '嗯',
+    '啊': '啊',
+    '啦': '啦',
+    '哇': '哇',
+    '耶': '耶',
+    '喔': '喔',
+    '嘻': '嘻',
+    '哈哈': '哈哈',
+    '嘿嘿': '嘿嘿',
+    '呵呵': '呵呵',
+    '嘻嘻': '嘻嘻',
+    '呜呜': '嗚嗚',
+    '哇哇': '哇哇',
+    '哈哈哈': '哈哈哈',
+    '嘿嘿嘿': '嘿嘿嘿',
+    '呵呵呵': '呵呵呵',
+    '嘻嘻嘻': '嘻嘻嘻',
+    '呜呜呜': '嗚嗚嗚',
+    '哇哇哇': '哇哇哇'
+};
+
+// ========== 文字潤飾函數 ==========
+function polishText(text) {
+    let polished = text;
+    
+    // 1. 修正錯字
+    for (const [typo, correct] of Object.entries(typoCorrections)) {
+        polished = polished.replace(new RegExp(typo, 'g'), correct);
+    }
+    
+    // 2. 移除多餘的空白
+    polished = polished.replace(/\s+/g, ' ').trim();
+    
+    // 3. 修正重複標點符號
+    polished = polished.replace(/。，/g, '。');
+    polished = polished.replace(/。、/g, '。');
+    polished = polished.replace(/，。/g, '。');
+    polished = polished.replace(/、。/g, '。');
+    polished = polished.replace(/。。+/g, '。');
+    polished = polished.replace(/，，+/g, '，');
+    polished = polished.replace(/、、+/g, '、');
+    
+    // 4. 確保句首大寫（中文不需要，但處理英文）
+    polished = polished.replace(/([。！？]\s*)([a-z])/g, (match, sep, letter) => sep + letter.toUpperCase());
+    
+    // 5. 移除句首的空白
+    polished = polished.replace(/^[\s]+/, '');
+    
+    return polished;
+}
+
+// ========== 句子連接詞資料庫 ==========
+const connectors = {
+    feeling: ['因此', '所以', '這讓我觉得', '這使我感到', '對我來說'],
+    finding: ['透過這次學習', '我發現', '我了解到', '原來', '這讓我想到'],
+    future: ['接下來', '以後', '下次', '未來', '從今以後']
+};
+
+// ========== 串接短文 ==========
 function compileEssay() {
     // 確保所有句子都已儲存
     sentences[currentStage] = document.getElementById('answer-input').value.trim();
     
-    // 串接成短文
-    let essay = '';
+    // 處理每個句子
+    const processedSentences = [];
+    
     sentences.forEach((sentence, index) => {
         if (sentence) {
-            // 確保句子以句號結尾
-            let processedSentence = sentence;
-            if (!processedSentence.endsWith('。') && !processedSentence.endsWith('！') && !processedSentence.endsWith('？')) {
-                processedSentence += '。';
+            let processed = sentence;
+            
+            // 潤飾文字
+            processed = polishText(processed);
+            
+            // 確保句子以標點符號結尾
+            if (!processed.endsWith('。') && !processed.endsWith('！') && !processed.endsWith('？') && !processed.endsWith('！')) {
+                processed += '。';
             }
-            essay += processedSentence + ' ';
+            
+            // 為第二句到第四句添加連接詞（如果句子沒有開頭連接詞）
+            if (index > 0 && processedSentences.length > 0) {
+                const hasConnector = connectors.feeling.some(c => processed.startsWith(c)) ||
+                                   connectors.finding.some(c => processed.startsWith(c)) ||
+                                   connectors.future.some(c => processed.startsWith(c));
+                
+                if (!hasConnector) {
+                    // 不強制添加連接詞，保持學生原始表達
+                }
+            }
+            
+            processedSentences.push(processed);
         }
     });
     
-    return essay.trim();
+    // 串接成短文
+    let essay = processedSentences.join(' ');
+    
+    // 最終潤飾
+    essay = polishText(essay);
+    
+    // 確保結尾有句號
+    if (!essay.endsWith('。') && !essay.endsWith('！') && !essay.endsWith('？')) {
+        essay += '。';
+    }
+    
+    return essay;
 }
 
 // ========== 顯示成果 ==========
@@ -400,8 +554,9 @@ function showResult() {
     document.getElementById('game-screen').classList.remove('active');
     document.getElementById('result-screen').classList.add('active');
     
-    // 顯示學生姓名
+    // 顯示學生姓名和年級
     document.getElementById('result-name').textContent = studentName;
+    document.getElementById('result-grade').textContent = studentGrade + '年級';
     
     // 顯示短文
     document.getElementById('essay-content').textContent = essay;
