@@ -60,5 +60,7 @@ def get_stages():
     return jsonify(STAGES)
 
 if __name__ == '__main__':
+    from waitress import serve
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    print(f"啟動 Waitress 伺服器，監聽連接埠 {port}...")
+    serve(app, host='0.0.0.0', port=port)
