@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026-07-16 4F 點子發電機開發對話記錄</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        .date {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+        .task {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 5px solid #4ECDC4;
+        }
+        .task h2 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .task h2 .num {
+            background: #4ECDC4;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .task p, .task li {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        .task ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        .task li {
+            margin-bottom: 4px;
+        }
+        .task code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #e74c3c;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 12px;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .before {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+        }
+        .after {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .before h4 { color: #856404; margin-bottom: 6px; }
+        .after h4 { color: #155724; margin-bottom: 6px; }
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .summary-box h2 { color: white; font-size: 1.2rem; margin-bottom: 12px; }
+        .summary-box li { color: rgba(255,255,255,0.9); }
+        .file-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 10px;
+        }
+        .file-list code {
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 2px 4px;
+            font-size: 0.85rem;
+        }
+        .link { color: #3498db; text-decoration: none; }
+        .link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>4F 點子發電機 — 開發對話記錄</h1>
+        <div class="date">日期：2026 年 7 月 16 日（四）</div>
+
+        <div class="summary-box">
+            <h2>📋 今日工作摘要</h2>
+            <ul>
+                <li>依據阿德勒心理學建立第2關情緒參考系統</li>
+                <li>依據年級（3–6年級）提供不同難度的參考詞語</li>
+                <li>參考答案改為完整句子，第2關保留簡短詞語</li>
+                <li>彙整短文自動補主詞、移除表情符號與贅字</li>
+                <li>更名為「4F 點子發電機」</li>
+                <li>修正表情符號移除範圍吃掉中文的 Bug</li>
+                <li>修正說明文字「填寫出場券」</li>
+                <li>重寫順稿邏輯，使短文通順自然</li>
+                <li>所有修改推送至 GitHub 並部署</li>
+            </ul>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">1</span>阿德勒心理學情緒建議系統</h2>
+            <p>依據第一關的事學內容，自動判斷學習情境類型，提供對應的情緒詞語：</p>
+            <ul>
+                <li><strong>成就感</strong>（成功、學會、完成）→ 開心、有成就感、自豪</li>
+                <li><strong>驚奇感</strong>（發現、新、知道）→ 好奇、驚奇、有趣</li>
+                <li><strong>努力感</strong>（難、挑戰、困難）→ 想再試一次、不放棄、堅強</li>
+                <li><strong>歸屬感</strong>（一起、同學、合作）→ 開心、團隊合作、歸屬感</li>
+                <li><strong>貢獻感</strong>（幫、分享、教）→ 快樂、有貢獻、有意義</li>
+            </ul>
+            <p style="margin-top:8px;">核心概念：社會興趣、追求優越感、補償作用、鼓勵原則。</p>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">2</span>年級分級參考詞語</h2>
+            <p>第2關情緒詞語依年級調整用詞複雜度：</p>
+            <ul>
+                <li>3年級：簡單口語（開心、好玩、勇敢）</li>
+                <li>4年級：適中詞彙（有挑戰性、團隊合作）</li>
+                <li>5年級：較豐富詞彙（想克服困難、歸屬感）</li>
+                <li>6年級：成熟詞彙（想持續努力、成長中）</li>
+            </ul>
+            <p style="margin-top:8px;">第3、4關不提供參考答案，讓學生自由表達。</p>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">3</span>第2關改為簡短詞語</h2>
+            <div class="before-after">
+                <div class="before">
+                    <h4>修改前</h4>
+                    「今天學會了新東西，我覺得很開心。」
+                </div>
+                <div class="after">
+                    <h4>修改後</h4>
+                    「開心」（點選後自動補主詞 → 心裡感到開心。）
+                </div>
+            </div>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">4</span>參考答案改為完整句子（第3、4關資料庫）</h2>
+            <p>所有年級的學習發現與未來目標資料庫，統一改為完整句子：</p>
+            <div class="before-after">
+                <div class="before">
+                    <h4>修改前</h4>
+                    「原來是這樣！」「下次我要更認真」
+                </div>
+                <div class="after">
+                    <h4>修改後</h4>
+                    「我發現原來是這樣！」「下次我要更認真聽課。」
+                </div>
+            </div>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">5</span>自動補主詞（addSubject 函數）</h2>
+            <p>彙整短文時，依關卡自動補上主詞，使每句更完整：</p>
+            <ul>
+                <li>第1關（事實）：缺主詞 → 補「我」</li>
+                <li>第2關（感受）：缺主詞 → 補「心裡感到」或「我覺得」</li>
+                <li>第3關（發現）：缺主詞 → 補「我發現」</li>
+                <li>第4關（未來）：缺主詞 → 補「我」或「我要」</li>
+            </ul>
+            <div class="before-after">
+                <div class="before">
+                    <h4>修改前</h4>
+                    學會了乘法。開心。乘法很有趣。要更認真。
+                </div>
+                <div class="after">
+                    <h4>修改後</h4>
+                    我學會了乘法。心裡感到開心。我發現乘法很有趣。我要更認真。
+                </div>
+            </div>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">6</span>表情符號移除 Bug 修正</h2>
+            <p>修正 <code>polishText</code> 中 <code>[\u{24C2}-\u{1F251}]</code> 範圍過大，導致所有中文字被移除的問題。</p>
+            <div class="before-after">
+                <div class="before">
+                    <h4>修改前</h4>
+                    範圍涵蓋 U+24C2 → U+1F251，包含整個 CJK 中文字碼，所有中文消失。
+                </div>
+                <div class="after">
+                    <h4>修改後</h4>
+                    移除錯誤範圍，只保留安全的 emoji 範圍（U+1F600–U+1F64F 等）。
+                </div>
+            </div>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">7</span>順稿邏輯重寫</h2>
+            <p>彙整短文由「句子排列」改為「自然短文」：</p>
+            <ul>
+                <li>前句已以句號結尾 → 直接併入下一句</li>
+                <li>前句未以標點結尾 → 加逗號銜接</li>
+                <li>最終再做一次文字潤飾</li>
+            </ul>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">8</span>文字更正</h2>
+            <ul>
+                <li>頁面標題：「4F 心得闖關」→「4F 點子發電機」</li>
+                <li>成果頁標題：「你的學習心得短文」→「我的 4F 點子短文」</li>
+                <li>按鈕文字：「填喜出場券」→「填寫出場券」</li>
+                <li>說明文字：「先點複製短文，再點填喜出場券」→「先點複製短文，再點填寫出場券」</li>
+            </ul>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">9</span>Git 提交記錄</h2>
+            <ul>
+                <li><code>feat: 依據阿德勒心理學，根據第一關事實內容提供不同情緒建議</code></li>
+                <li><code>feat: 參考答案改為完整句子</code></li>
+                <li><code>feat: 彙整短文時自動移除表情符號和不相關文字</code></li>
+                <li><code>fix: 只保留第二關參考答案，更正按鈕文字為填寫出場券</code></li>
+                <li><code>fix: 修正表情符號移除範圍吃掉中文、更正說明文字為填寫出場券</code></li>
+                <li><code>feat: 更名為4F點子發電機，重寫順稿邏輯使短文更通順</code></li>
+                <li><code>feat: 短文自動補主詞，使每句更完整通順</code></li>
+                <li><code>feat: 第二關參考改為簡短詞語而非完整句子</code></li>
+            </ul>
+        </div>
+
+        <div class="task">
+            <h2><span class="num">10</span>相關檔案與連結</h2>
+            <div class="file-list">
+                <strong>修改的檔案：</strong><br>
+                <code>app.py</code>
+                <code>templates/index.html</code>
+                <code>static/js/script.js</code>
+                <code>static/css/style.css</code>
+            </div>
+            <div class="file-list" style="margin-top:10px;">
+                <strong>GitHub：</strong>
+                <a class="link" href="https://github.com/nina1229ilc/4f-game" target="_blank">https://github.com/nina1229ilc/4f-game</a>
+            </div>
+            <div class="file-list" style="margin-top:10px;">
+                <strong>本機測試：</strong>
+                <code>http://localhost:5000</code>
+            </div>
+            <div class="file-list" style="margin-top:10px;">
+                <strong>部署：</strong>
+                Render Dashboard → Manual Deploy → Deploy latest commit
+            </div>
+        </div>
+    </div>
+</body>
+</html>

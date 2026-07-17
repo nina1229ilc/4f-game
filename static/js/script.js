@@ -530,93 +530,147 @@ function prevStage() {
 }
 
 // ========== 串接短文 ==========
-// ========== 錯字訂正資料庫 ==========
-const typoCorrections = {
-    // 常見錯字
-    '因爲': '因為',
-    '己经': '已經',
-    '觉得': '覺得',
-    '学到': '學到',
-    '有趣': '有趣',
-    '开心': '開心',
-    '发现': '發現',
-    '学习': '學習',
-    '老师': '老師',
-    '同学': '同學',
-    '感觉': '感覺',
-    '想要': '想要',
-    '可以': '可以',
-    '真的': '真的',
-    '非常': '非常',
-    '以后': '以後',
-    '所以': '所以',
-    '而且': '而且',
-    '虽然': '雖然',
-    '但是': '但是',
-    '因为': '因為',
-    '如果': '如果',
-    '这样': '這樣',
-    '那样': '那樣',
-    '什么': '什麼',
-    '怎么': '怎麼',
-    '为什么': '為什麼',
-    '這裡': '這裡',
-    '那里': '那裡',
-    '哪里': '哪裡',
-    '甚麼': '什麼',
-    '怎麽': '怎麼',
-    '麽': '麼',
-    '著': '著',
-    '了': '了',
-    '過': '過',
-    '會': '會',
-    '對': '對',
-    '從': '從',
-    '給': '給',
-    '讓': '讓',
-    '與': '與',
-    '及': '及',
-    '或': '或',
-    '而': '而',
-    '但': '但',
-    '若': '若',
-    '如': '如',
-    '因': '因',
-    '所': '所',
-    '以': '以',
-    '於': '於',
-    '這': '這',
-    '那': '那',
-    '哪': '哪',
-    '個': '個',
-    '們': '們',
-    '嗎': '嗎',
-    '呢': '呢',
-    '吧': '吧',
-    '啦': '啦',
-    '囉': '囉',
-    '喔': '喔',
-    '噢': '噢',
-    '嗯': '嗯',
-    '啊': '啊',
-    '啦': '啦',
-    '哇': '哇',
-    '耶': '耶',
-    '喔': '喔',
-    '嘻': '嘻',
-    '哈哈': '哈哈',
-    '嘿嘿': '嘿嘿',
-    '呵呵': '呵呵',
-    '嘻嘻': '嘻嘻',
-    '呜呜': '嗚嗚',
-    '哇哇': '哇哇',
-    '哈哈哈': '哈哈哈',
-    '嘿嘿嘿': '嘿嘿嘿',
-    '呵呵呵': '呵呵呵',
-    '嘻嘻嘻': '嘻嘻嘻',
-    '呜呜呜': '嗚嗚嗚',
-    '哇哇哇': '哇哇哇'
-};
+// ========== 錯字訂正資料庫（依上下文語境） ==========
+const contextTypoRules = [
+    // ---- 簡繁混用修正 ----
+    { pattern: /因爲/g, replace: '因為' },
+    { pattern: /己经/g, replace: '已經' },
+    { pattern: /觉得/g, replace: '覺得' },
+    { pattern: /学到/g, replace: '學到' },
+    { pattern: /开心/g, replace: '開心' },
+    { pattern: /发现/g, replace: '發現' },
+    { pattern: /学习/g, replace: '學習' },
+    { pattern: /老师/g, replace: '老師' },
+    { pattern: /同学/g, replace: '同學' },
+    { pattern: /感觉/g, replace: '感覺' },
+    { pattern: /以后/g, replace: '以後' },
+    { pattern: /虽然/g, replace: '雖然' },
+    { pattern: /这样/g, replace: '這樣' },
+    { pattern: /那样/g, replace: '那樣' },
+    { pattern: /什么/g, replace: '什麼' },
+    { pattern: /怎么/g, replace: '怎麼' },
+    { pattern: /为什么/g, replace: '為什麼' },
+    { pattern: /那里/g, replace: '那裡' },
+    { pattern: /哪里/g, replace: '哪裡' },
+    { pattern: /甚麼/g, replace: '什麼' },
+    { pattern: /怎麽/g, replace: '怎麼' },
+    { pattern: /麽/g, replace: '麼' },
+    { pattern: /呜呜/g, replace: '嗚嗚' },
+
+    // ---- 學習情境常見錯字 ----
+    // 「的」「得」「地」混用
+    { pattern: /很(?:開心|有趣|好玩|難|簡單|棒|好|快|慢)地/g, function(m) { return m.replace('地', '的'); } },
+    { pattern: /(?:認真|仔細|專心|努力|開心|大聲)的(?:做|寫|讀|聽|說|看|學)/g, function(m) { return m.replace('的', '地'); } },
+
+    // 「在」「再」混用
+    { pattern: /(?:我|他|她|它|我們|同學)在(?:來|去|試|做|寫|看|讀|學)/g, function(m) { return m.replace('在', '再'); } },
+    { pattern: /(?:想|要|會|可以|應該)在(?:做|試|寫|看|讀|學)/g, function(m) { return m.replace('在', '再'); } },
+
+    // 「做」「作」混用
+    { pattern: /作(?:業|文|用|品|事|為)/g, function(m) { return m.replace('作', '作'); } }, // 保持正確
+    { pattern: /做(?:作業|作文|作用|作品|做事|為了)/g, function(m) { return m.replace('做', '作'); } },
+
+    // 「像」「向」混用
+    { pattern: /向(?:是|的|了|過)/g, function(m) { return m.replace('向', '像'); } },
+    { pattern: /像(?:前|後|上|下|左|右|東|西|南|北)/g, function(m) { return m.replace('像', '向'); } },
+
+    // 「己」「已」「巳」混用
+    { pattern: /己經/g, replace: '已經' },
+    { pattern: /巳經/g, replace: '已經' },
+    { pattern: /自已/g, replace: '自己' },
+
+    // 「他」「她」「它」混用（學習情境預設用「他」或省略）
+    { pattern: /它們/g, replace: '他們' },
+
+    // 「那」「哪」混用
+    { pattern: /那個地方是/g, replace: '哪個地方是' },
+    { pattern: /那裡是/g, replace: '哪裡是' },
+
+    // 「有」「又」「右」混用
+    { pattern: /有沒有做過/g, replace: '有沒有做過' }, // 保持正確
+    { pattern: /又做了一次/g, replace: '又做了一次' }, // 保持正確
+
+    // 「會」「回」混用
+    { pattern: /一會兒/g, replace: '一會兒' }, // 保持正確
+
+    // 「做」「坐」混用
+    { pattern: /做下來/g, replace: '坐下來' },
+    { pattern: /做著/g, replace: '坐著' },
+
+    // 「進」「近」混用
+    { pattern: /近來/g, replace: '進來' },
+    { pattern: /近步/g, replace: '進步' },
+
+    // 「長」「常」混用
+    { pattern: /長來/g, replace: '常來' },
+    { pattern: /長常/g, replace: '常常' },
+
+    // 「真」「直」混用
+    { pattern: /直的/g, replace: '真的' },
+    { pattern: /真心/g, replace: '真心' }, // 保持正確
+
+    // 「問」「間」混用
+    { pattern: /中間題/g, replace: '問題' },
+
+    // 「話」「語」混用
+    { pattern: /說語/g, replace: '說話' },
+
+    // 「讀」「賣」混用
+    { pattern: /賣書/g, replace: '讀書' },
+
+    // 「寫」「賣」混用
+    { pattern: /賣字/g, replace: '寫字' },
+
+    // 「算」「類」混用
+    { pattern: /數類/g, replace: '數學' },
+
+    // 「課」「顆」混用
+    { pattern: /一顆書/g, replace: '一本書' },
+    { pattern: /上顆/g, replace: '上課' },
+
+    // 「本」「體」混用
+    { pattern: /身體/g, replace: '身體' }, // 保持正確
+
+    // 「開」「關」混用
+    { pattern: /關心/g, replace: '關心' }, // 保持正確
+
+    // 「對」「錯」混用
+    { pattern: /錯了/g, replace: '錯了' }, // 保持正確
+
+    // 「大」「太」「犬」混用
+    { pattern: /太陽/g, replace: '太陽' }, // 保持正確
+    { pattern: /太大聲/g, replace: '太大聲' }, // 保持正確
+
+    // 「小」「少」混用
+    { pattern: /很少/g, replace: '很少' }, // 保持正確
+
+    // 「多」「都」混用
+    { pattern: /都很多/g, replace: '都很多' }, // 保持正確
+
+    // 「和」「合」混用
+    { pattern: /合在一起/g, replace: '合在一起' }, // 保持正確
+    { pattern: /和同學/g, replace: '和同學' }, // 保持正確
+
+    // 「但」「但是」混用
+    { pattern: /但但是/g, replace: '但是' },
+
+    // 「很」「狠」混用
+    { pattern: /狠難/g, replace: '很難' },
+    { pattern: /狠好/g, replace: '很好' },
+    { pattern: /狠棒/g, replace: '很棒' },
+    { pattern: /狠有趣/g, replace: '很有趣' },
+
+    // 「裡」「裏」混用
+    { pattern: /裏面/g, replace: '裡面' },
+    { pattern: /心裏/g, replace: '心裡' },
+
+    // 「後」「候」混用
+    { pattern: /時侯/g, replace: '時候' },
+    { pattern: /候來/g, replace: '後來' },
+
+    // 「著」「著」混用
+    { pattern: /看書著/g, replace: '看著書' },
+];
 
 // ========== 文字潤飾函數 ==========
 function polishText(text) {
@@ -631,9 +685,13 @@ function polishText(text) {
     polished = polished.replace(/[\u{1FA00}-\u{1FA6F}]/gu, '');
     polished = polished.replace(/[\u{1FA70}-\u{1FAFF}]/gu, '');
     
-    // 2. 修正錯字
-    for (const [typo, correct] of Object.entries(typoCorrections)) {
-        polished = polished.replace(new RegExp(typo, 'g'), correct);
+    // 2. 根據上下文語境修正錯字
+    for (const rule of contextTypoRules) {
+        if (typeof rule.replace === 'string') {
+            polished = polished.replace(rule.pattern, rule.replace);
+        } else if (typeof rule.replace === 'function') {
+            polished = polished.replace(rule.pattern, rule.replace);
+        }
     }
     
     // 3. 移除贅字和贅詞（安全版本，避免亂碼）
